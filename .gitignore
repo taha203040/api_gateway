@@ -1,0 +1,18 @@
+# Node modules (all services)
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Build folders (TypeScript)
+dist
+build
+
+# OS files
+.DS_Store
