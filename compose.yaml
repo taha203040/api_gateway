@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  user:
+    build:
+      context: ./user
+      dockerfile: dockerfile.dev
+    volumes:
+      - ./user:/app
+      - /app/node_modules
+    ports:
+      - "3001:3000"
+    develop:
+      watch:
+        - path: ./user/package.json
+          action: rebuild
+        - path: ./user/package-lock.json
+          action: rebuild
+        - path: ./user/
+          target: /app
+          action: sync
+    restart: always
+
+  checkout:
+    build:
+      context: ./checkout
+      dockerfile: dockerfile.dev
+    volumes:
+      - ./checkout:/app
+      - /app/node_modules
+    ports:
+      - "3002:3000"
+    develop:
+      watch:
+        - path: ./checkout/package.json
+          action: rebuild
+        - path: ./checkout/package-lock.json
+          action: rebuild
+        - path: ./checkout/
+          target: /app
+          action: sync
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: dockerfile.dev
+    volumes:
+      - ./gateway:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - path: ./gateway/package.json
+          action: rebuild
+        - path: ./gateway/package-lock.json
+          action: rebuild
+        - path: ./gateway/
+          target: /app
+          action: sync

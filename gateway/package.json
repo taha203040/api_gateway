@@ -1,5 +1,5 @@
 {
-  "name": "checkout",
+  "name": "api_getway",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
@@ -12,6 +12,7 @@
   "type": "commonjs",
   "description": "",
   "dependencies": {
+    "jsonwebtoken": "^9.0.3",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2"
   },
