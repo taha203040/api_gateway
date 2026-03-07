@@ -1,15 +1,106 @@
-version: "3.9"
-
+# services:
+#   nginx : 
+#     image: nginx:latest
+#     container_name: nginx_gateway
+#     ports:
+#       - "80:80"
+#     volumes:
+#       - ./gateway/etc/nginx/nginx.config
+#     depends_on :
+#       - checkout
+#       - user 
+#     networks:
+#       - api_gatewayN
+#   user:
+#     build: ./user
+#     container_name: user_cont
+#     volumes:
+#       - ./user:/app
+#       - /app/node_modules
+#     ports:
+#       - "3001:3001"
+#     develop:
+#       watch:
+#         - path: ./user/package.json
+#           action: rebuild
+#         - path: ./user/package-lock.json
+#           action: rebuild
+#         - path: ./user/
+#           target: /app
+#           action: sync
+#     restart: always
+#     networks:
+#       - api_gatewayN
+#   checkout:
+#     build: ./checkout
+#     container_name: checkout_cont
+#     volumes:
+#       - ./checkout:/app
+#       - /app/node_modules
+#     ports:
+#       - "3002:3000"
+#     develop:
+#     networks:
+#       - api_gatewayN
+# networks:
+#   app-network:
+#     driver: bridge
+    
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./gateway/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - checkout
+      - user
+    networks:
+      - app-network
+  user_db:
+    image: postgres:16
+    container_name: user_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: users_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - users_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+      
+  checkout_db:
+    image: postgres:16
+    container_name: checkout_db  # Fixed typo: was "pcheckout_dbb"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: checkouts_db
+    ports:
+      - "5433:5432"  
+    volumes:
+      - checkout_data:/var/lib/postgresql/data  
+    networks:
+      - app-network
+
   user:
-    build:
-      context: ./user
-      dockerfile: dockerfile.dev
+    build: ./user
+    container_name: user_cont
     volumes:
       - ./user:/app
       - /app/node_modules
     ports:
-      - "3001:3000"
+      - "3001:3001"
+    restart: always
+    command: npm run dev
+    networks:
+      - app-network
+    depends_on:
+      - user_db
     develop:
       watch:
         - path: ./user/package.json
@@ -19,18 +110,23 @@ services:
         - path: ./user/
           target: /app
           action: sync
-    restart: always
-
+      
+    
   checkout:
-    build:
-      context: ./checkout
-      dockerfile: dockerfile.dev
+    build: ./checkout
+    container_name: checkout_cont
     volumes:
       - ./checkout:/app
       - /app/node_modules
     ports:
-      - "3002:3000"
-    develop:
+      - "3002:3002"
+    restart: always
+    command: npm run dev
+    networks:
+      - app-network
+    depends_on:
+      - checkout_db
+    develop:  
       watch:
         - path: ./checkout/package.json
           action: rebuild
@@ -39,22 +135,10 @@ services:
         - path: ./checkout/
           target: /app
           action: sync
+networks:
+  app-network:
+    driver: bridge
 
-  gateway:
-    build:
-      context: ./gateway
-      dockerfile: dockerfile.dev
-    volumes:
-      - ./gateway:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    develop:
-      watch:
-        - path: ./gateway/package.json
-          action: rebuild
-        - path: ./gateway/package-lock.json
-          action: rebuild
-        - path: ./gateway/
-          target: /app
-          action: sync
+volumes:
+  users_data:
+  checkout_data:
