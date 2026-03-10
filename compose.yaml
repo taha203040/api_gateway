@@ -55,8 +55,8 @@ services:
     volumes:
       - ./gateway/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - checkout
       - user
+      - checkout
     networks:
       - app-network
   user_db:
@@ -75,7 +75,7 @@ services:
       
   checkout_db:
     image: postgres:16
-    container_name: checkout_db  # Fixed typo: was "pcheckout_dbb"
+    container_name: checkout_db  
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -110,8 +110,6 @@ services:
         - path: ./user/
           target: /app
           action: sync
-      
-    
   checkout:
     build: ./checkout
     container_name: checkout_cont
