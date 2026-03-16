@@ -60,7 +60,7 @@ services:
     networks:
       - app-network
   user_db:
-    image: postgres:16
+    image: postgres:alpine
     container_name: user_db
     environment:
       POSTGRES_USER: admin
@@ -74,7 +74,7 @@ services:
       - app-network
       
   checkout_db:
-    image: postgres:16
+    image: postgres:alpine
     container_name: checkout_db  
     environment:
       POSTGRES_USER: admin
@@ -107,6 +107,8 @@ services:
           action: rebuild
         - path: ./user/package-lock.json
           action: rebuild
+        - path: ./user/tsconfig.ts
+          action : rebuild
         - path: ./user/
           target: /app
           action: sync
@@ -126,13 +128,15 @@ services:
       - checkout_db
     develop:  
       watch:
+        - path: ./user/tsconfig.ts
+          action : rebuild
         - path: ./checkout/package.json
           action: rebuild
         - path: ./checkout/package-lock.json
           action: rebuild
         - path: ./checkout/
-          target: /app
           action: sync
+          target: /app
 networks:
   app-network:
     driver: bridge
