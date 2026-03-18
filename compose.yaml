@@ -55,8 +55,13 @@ services:
     volumes:
       - ./gateway/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - user
+      - auth
       - checkout
+    # develop:
+    #   watch :
+    #   - path : /gateway/etc/nginx/nginx.conf
+    #     action: rebuild
+      
     networks:
       - app-network
   user_db:
@@ -81,17 +86,17 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: checkouts_db
     ports:
-      - "5433:5432"  
+      - "5433:5433"  
     volumes:
       - checkout_data:/var/lib/postgresql/data  
     networks:
       - app-network
 
-  user:
-    build: ./user
-    container_name: user_cont
+  auth:
+    build: ./auth
+    container_name: auth_cont
     volumes:
-      - ./user:/app
+      - ./auth:/app
       - /app/node_modules
     ports:
       - "3001:3001"
@@ -103,13 +108,13 @@ services:
       - user_db
     develop:
       watch:
-        - path: ./user/package.json
+        - path: ./auth/package.json
           action: rebuild
-        - path: ./user/package-lock.json
+        - path: ./auth/package-lock.json
           action: rebuild
-        - path: ./user/tsconfig.ts
+        - path: ./auth/tsconfig.ts
           action : rebuild
-        - path: ./user/
+        - path: ./auth/
           target: /app
           action: sync
   checkout:
@@ -128,7 +133,7 @@ services:
       - checkout_db
     develop:  
       watch:
-        - path: ./user/tsconfig.ts
+        - path: ./checkout/tsconfig.ts
           action : rebuild
         - path: ./checkout/package.json
           action: rebuild

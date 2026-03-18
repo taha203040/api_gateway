@@ -29,7 +29,7 @@ export const signup = async (req: Request, res: Response) => {
       user: result.rows[0],
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", err:error });
   }
 };
 
@@ -71,5 +71,20 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const verifyToken = (req: Request, res: Response, next: Function) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    (req as any).user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };

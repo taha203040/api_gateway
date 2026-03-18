@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, signup } from "./user_auth";
+import { login, signup, verifyToken } from "./user_auth";
 import express from "express";
 const app = express();
 const router = Router();
@@ -10,6 +10,7 @@ router.get('/', (req, res) => {
     console.log('hello world ')
     res.json({ msg: "hello worl from nginx " })
 })
+router.get("/verify", verifyToken);
 app.use("/auth", router);
 app.get('/', (req, res) => {
     console.log('hello from user ')
