@@ -1,0 +1,31 @@
+services:
+#gateway
+  nginx :
+    image: openresty/openresty:1.27.1.2-0-alpine
+    depends_on :
+    - checkout
+    ports:
+      - '80:80'
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+      - '8001:8001'
+   # services
+  checkout:
+  #build - volums ports develop cmd 
+    build : ./checkout
+    ports:
+      - '3002:3002'
+    command : npm run dev
+    develop:
+      watch:
+        - path: ./checkout/package*.json
+          action: rebuild
+        - path: ./checkout/tsconfig.ts
+          action: rebuild
+        - path : ./checkout
+          action: sync
+          target: /app
+  
